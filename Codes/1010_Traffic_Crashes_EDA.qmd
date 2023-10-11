@@ -5,4 +5,57 @@ editor: visual
 jupyter: ir
 ---
 
-## 
+## EDA - Traffic Crashes Data
+
+```{r}
+#Installing Libraries
+library(dplyr)
+library(tidyverse)
+library(Hmisc)
+```
+
+```{r}
+#File too large to upload to Github - copy stored in local
+T_Data = read.csv("C:/Users/divya/OneDrive/Documents/Duke/MIDS/Semester 1/IDS 702 - Statistics/Traffic_Crashes_-_Crashes.csv")
+```
+
+```{r}
+glimpse(T_Data)
+```
+
+```{r}
+summary(T_Data)
+```
+
+```{r}
+
+basic_eda <- function(data)
+{
+  glimpse(data)
+  describe(data)
+}
+basic_eda(T_Data)
+```
+
+```{r}
+Data_Cleaned <- T_Data
+```
+
+```{r}
+
+```
+
+#### Cleaning Data
+
+```{r}
+#Cleaning Data
+
+#Creating timestamp column for Crash Time 
+Data_Cleaned$CRASH_DATE_CLEANED <- strptime(Data_Cleaned$CRASH_DATE, "%m/%d/%Y %H:%M:%S %p")
+#Creating timestamp column for Police Notified Time
+Data_Cleaned$DATE_POLICE_NOTIFIED_CLEANED <- strptime(Data_Cleaned$DATE_POLICE_NOTIFIED, "%m/%d/%Y %H:%M:%S %p")
+#Creating a flag for Damages over $1,500
+Data_Cleaned$Damage_Over_1500 <- ifelse("OVER $1,500" == Data_Cleaned$DAMAGE, "1", "0")
+#Creating a flag for Injuries
+Data_Cleaned$Injury_Flag <- ifelse(Data_Cleaned$INJURIES_TOTAL > 0, 1, 0)
+```
