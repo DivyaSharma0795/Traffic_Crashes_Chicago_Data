@@ -59,3 +59,9 @@ Data_Cleaned$Damage_Over_1500 <- ifelse("OVER $1,500" == Data_Cleaned$DAMAGE, "1
 #Creating a flag for Injuries
 Data_Cleaned$Injury_Flag <- ifelse(Data_Cleaned$INJURIES_TOTAL > 0, 1, 0)
 ```
+
+```{r}
+library(purrr)
+
+Data_Cleaned %>% split(.$Injury_Flag) %>% map(summary)
+```
