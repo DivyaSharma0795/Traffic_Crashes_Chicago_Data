@@ -9,9 +9,9 @@ jupyter: ir
 
 ```{r}
 #Installing Libraries
-library(dplyr)
-library(tidyverse)
-library(Hmisc)
+library(dplyr, quietly = T)
+library(tidyverse, quietly = T)
+library(Hmisc, quietly = T)
 ```
 
 ```{r}
@@ -64,4 +64,97 @@ Data_Cleaned$Injury_Flag <- ifelse(Data_Cleaned$INJURIES_TOTAL > 0, 1, 0)
 library(purrr)
 
 Data_Cleaned %>% split(.$Injury_Flag) %>% map(summary)
+```
+
+```{r}
+as.factor(Data_Cleaned$CRASH_MONTH)
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(CRASH_MONTH), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Month", x = "Month", y = "#Injuries") +
+    theme(legend.position = "bottom")
+
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(CRASH_DAY_OF_WEEK), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Day of Week", x = "Day of Week", y = "#Injuries") +
+    theme(legend.position = "bottom")
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(CRASH_HOUR), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Time of Day", x = "Time of Day", y = "#Injuries") +
+    theme(legend.position = "bottom")
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(NUM_UNITS), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and #Units in crash", x = "#Units in crash", y = "#Injuries") +
+    theme(legend.position = "bottom")
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(STREET_DIRECTION), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Street Direction", x = "Street Direction", y = "#Injuries") +
+    theme(legend.position = "bottom")
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(DAMAGE), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Damage", x = "Damage", y = "#Injuries") +
+    theme(legend.position = "bottom")
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(ROAD_DEFECT), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Road Defects", x = "Road Defects", y = "#Injuries") +
+    theme(legend.position = "bottom") +theme(axis.text.x = element_text(angle = 90)) 
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(TRAFFICWAY_TYPE), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Traffic Type", x = "Traffic Type", y = "#Injuries") +
+    theme(legend.position = "bottom") +theme(axis.text.x = element_text(angle = 90)) 
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(WEATHER_CONDITION), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Weather", x = "Weather", y = "#Injuries") +
+    theme(legend.position = "bottom") +theme(axis.text.x = element_text(angle = 90)) 
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(DEVICE_CONDITION), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Device Condition", x = "Device Condition", y = "#Injuries") +
+    theme(legend.position = "bottom") +theme(axis.text.x = element_text(angle = 90)) 
+```
+
+```{r}
+# Plotting the bar chart
+library(ggplot2)
+ggplot(Data_Cleaned, aes(x = as.factor(TRAFFIC_CONTROL_DEVICE), y = Injury_Flag)) + geom_bar(stat = "identity") +
+  labs(title = "Relationship between Injuries and Traffic Control Device", x = "Traffic Control Device Condition", y = "#Injuries") +
+    theme(legend.position = "bottom") +theme(axis.text.x = element_text(angle = 90)) 
 ```
