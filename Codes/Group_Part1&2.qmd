@@ -1,0 +1,122 @@
+---
+title: "Traffic Crashes EDA"
+date: "10/20/2023"
+format:
+  pdf:
+    include-in-header:
+      text: |
+        \addtokomafont{disposition}{\rmfamily}
+editor: visual
+---
+
+```{r,include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(ggrepel)
+library(hrbrthemes)
+df_raw <- read.csv('crashes.csv', stringsAsFactors = F)
+```
+
+## Data Overview
+
+**Dataset**: The data-set has data on Traffic Crashes in Chicago from 2015 onwards, and contains details of each crash, including:
+
+• Location: The latitude and longitude of the crash.
+
+• Date and time: The date and time of the crash.
+
+• Injuries: The number and type of injuries that occurred.
+
+• Damage: The estimated damage cost of the crash.
+
+• Crash Type: The details about the type of crash - hit and run, no right of way, intersection related, causes etc.
+
+• Conditions: The details about the weather, lighting, traffic, traffic control devices, roads etc.
+
+This dataset can be used to identify the probabilities of crashes happening, and their eventual consequences, given the surrounding situations such as time of day, weather, road conditions,traffic conditions, lighting, roadway surface etc.
+
+**Source**: The dataset was obtained from an online repository, though the specific origin or institution responsible for its collection and maintenance was not specified. The dataset is sellcted from [DATA.GOV](https://catalog.data.gov/dataset/traffic-crashes-crashes) in the United States.
+
+**Sample Size**: The dataset contains a total of 769,100 observations.
+
+**Number of Variables**: There are 49 variables in the dataset.
+
+**Collection Method**: The data appears to be collected from traffic crash reports in Chicago. These reports can be sourced from various entities such as traffic police, surveillance systems, or reporting by involved parties. The exact method of data collection, however, has not been provided.
+
+**Unit of Analysis**: Each row in the dataset represents a unique traffic crash incident in Chicago. The details of the crash, including specifics like location, time, type of crash, conditions at the time of the crash, and the aftermath (like injuries and damages), are captured across the 49 variables.
+
+**Research Questions**:
+
+1.  Given that there is a crash, based on the location, time, crash type, and surrounding road and traffic conditions, how much damage is to be expected (\<=1.5K\$ or \>1.5K\$)?
+
+-   **Outcome Variable** - Damage (\<=1.5K\$ or \>1.5K\$) - categorical variable
+-   **Input/Explanatory Variables** - Location, Date, time of the day, crash type, and surrounding conditions
+
+2.  How long it takes for police to be notified, given the nature of the accident?
+
+-   **Outcome Variable** - Police Notification Time (created from two time variable) - continuous variable
+-   **Input/Explanatory Variables** - Location, Date, time of the day, crash type, and surrounding conditions.
+
+```{r, include=FALSE}
+time_diff <- as.numeric(difftime(as.POSIXct(df_raw$DATE_POLICE_NOTIFIED, format='%m/%d/%Y %H:%M:%S %p', tz=Sys.timezone()), as.POSIXct(df_raw$CRASH_DATE, format='%m/%d/%Y %H:%M:%S %p', tz=Sys.timezone()), units = "min"))
+df_cleaned <- df_raw %>% 
+  mutate(damage_class = factor(case_when(DAMAGE %in% c("$500 OR LESS", 
+                                                       "$501 - $1,500") ~ "Minor",
+                                         DAMAGE %in% c("OVER $1,500") ~ "Major", 
+                                         TRUE ~ NA_character_)),
+         police_notified_time = time_diff) %>% 
+  filter(police_notified_time > 0, 
+         police_notified_time <= 24 * 60, 
+         !is.na(police_notified_time)) %>% # less than a day
+  select(-CRASH_RECORD_ID, -RD_NO)
+```
+
+## EDA for Outcome Variables
+
+### Police Notification Time
+
+```{r, echo=FALSE,fig.width = 4, fig.height = 3}
+df_cleaned %>%
+  ggplot(aes(x=police_notified_time)) +
+  geom_histogram(binwidth=0.25, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  ggtitle("Distribution of Police Notification Time (Mins.)") +
+  xlab("Time in Minutes (logscale)") +
+  ylab("Count") +
+  # annotation_logticks() +
+  scale_x_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  theme(plot.title = element_text(size=15)) +
+  geom_vline(xintercept = median(df_cleaned$police_notified_time)) + 
+  annotate("text", 
+           x=median(df_cleaned$police_notified_time), 
+           y=0, 
+           label=paste0(median(df_cleaned$police_notified_time), " Minutes."), 
+           angle=0)
+```
+
+> -   The distribution is heavily right skewed with a majority of accidents being reported to the police in less than 25 minutes. Thus, the outcome is better visualized on a log scale.
+>
+> -   The median notification time is 25 mins, the mean is 110 mins (1 hr, 50 mins) and the maximum is 1440 mins (1 day).
+>
+> -   Given the heavy skewing of the outcome variable, we will need to do appropriate transformations on the outcome variables in the modeling step.
+
+## Expected Damage
+
+```{r, echo=FALSE,fig.width = 4, fig.height = 3}
+df_cleaned %>% 
+  group_by(damage_class) %>% 
+  summarise(Count = n()) %>% 
+  ungroup() %>%
+  mutate(`Percent` = round(Count/sum(Count), 2),
+         labels = scales::percent(Percent)) %>% 
+  rename(`Damage Class` = damage_class) %>% 
+  ggplot(aes(x = "", y = Percent, fill = `Damage Class`)) +
+  geom_col() +
+  geom_text(aes(label = labels),
+            position = position_stack(vjust = 0.5)) +
+  coord_polar(theta = "y") + 
+  ggtitle("Distribution of the Categorical Outcome Variable") +
+  theme_void() +
+  geom_text(aes(x=0, y = 0, label=paste0("Total: ", sum(Count))))
+```
