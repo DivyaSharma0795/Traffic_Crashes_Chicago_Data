@@ -8,6 +8,7 @@ format:
         \addtokomafont{disposition}{\rmfamily}
 editor: visual
 geometry: margin = 0.5cm
+author: "Group 12: Divya Sharma (ds655), Dhaval Potdar(), Jiayi Zhou(), Jiechen Li ()"
 ---
 
 ```{r,include=FALSE}
@@ -78,7 +79,11 @@ This data can be used to identify the probabilities of crashes happening, and th
 ## 2. EDA for Outcome Variables
 
 ### 2.1 Police Notification Time
+> -   The distribution is heavily right skewed with a majority of accidents being reported to the police in less than 25 minutes. Thus, the outcome is better visualized on a log scale.
 
+> -   The median notification time is 25 mins, the mean is 110 mins (1 hr, 50 mins) and the maximum is 1440 mins (1 day).
+
+> -   Given the heavy skewing of the outcome variable, we will need to do appropriate transformations on the outcome variables in the modeling step.
 
 #### Fig 1: Distribution of Police Notified Time (Continuous Outcome)
 ```{r, echo=FALSE,fig.width = 4, fig.height = 3}
@@ -92,6 +97,7 @@ df_cleaned %>%
   scale_x_log10(
    breaks = scales::trans_breaks("log10", function(x) 10^x),
    labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_continuous(name = "#Crashes", labels = scales::comma) +
   theme(plot.title = element_text(size=15)) +
   geom_vline(xintercept = median(df_cleaned$police_notified_time)) + 
   annotate("text", 
@@ -101,14 +107,10 @@ df_cleaned %>%
            angle=0)
 ```
 
-> -   The distribution is heavily right skewed with a majority of accidents being reported to the police in less than 25 minutes. Thus, the outcome is better visualized on a log scale.
->
-> -   The median notification time is 25 mins, the mean is 110 mins (1 hr, 50 mins) and the maximum is 1440 mins (1 day).
->
-> -   Given the heavy skewing of the outcome variable, we will need to do appropriate transformations on the outcome variables in the modeling step.
-
 ### 2.2 Expected Damage
+-   The categorical variable has two outcomes - Major Damage (\>$1,500) and Minor Damage (\<$1,500)
 
+-   62% of the damages come under the 'Major' category
 #### Fig 2: Distribution of Damage Type (Categorical Outcome)
 ```{r, echo=FALSE,fig.width = 3, fig.height = 2}
 df_cleaned %>% 
@@ -127,10 +129,6 @@ df_cleaned %>%
   theme_void() +
   geom_text(aes(x=0, y = 0, label=paste0("Total: ", sum(Count))))
 ```
-
--   The categorical variable has two outcomes - Major Damage (\>%1,500) and Minor Damage (\<%1,500)
-
--   62% of the damages come under the 'Major' category
 
 ## 3. Primary Variables of Interest
 
@@ -230,21 +228,21 @@ p1 <- ggplot(df_cleaned, aes(x = cut(CRASH_HOUR, breaks = seq(0, 24, by = 4)), y
   geom_bar(fill="#69b3a2") +
   ggtitle("By hour") +
   scale_y_continuous(name = "#Crashes", expand = c(0, 0), labels = scales::comma) +
-  scale_x_discrete(name = "Hour", labels = c("0-4AM", "4-8AM", "8-12PM", "12-4PM", "4-8PM", "8-12AM")) +
+  scale_x_discrete(name = "Hour of day", labels = c("12 AM - 4AM", "4 AM - 8AM", "8AM - 12PM", "12PM - 4PM", "4PM - 8PM", "8PM - 12AM")) +
   theme(axis.text.x = element_text(angle = 90))
 
 p2 <- ggplot(df_cleaned, aes(x = factor(CRASH_DAY_OF_WEEK), y = ..count..)) +
   geom_bar(fill="#69b3a2") +
   ggtitle("By weekday") +
   scale_y_continuous(name = "#Crashes", expand = c(0, 0), labels = scales::comma) +
-  scale_x_discrete(name = "Weekday", labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun")) +
+  scale_x_discrete(name = "Day of week", labels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun")) +
   theme(axis.title.y = element_blank(), axis.text.x = element_text(angle = 90))
 
 p3 <- ggplot(df_cleaned, aes(x = factor(CRASH_MONTH), y = ..count..)) +
   geom_bar(fill="#69b3a2") +
   ggtitle("By month") +
   scale_y_continuous(name = "#Crashes", expand = c(0, 0), labels = scales::comma) +
-  scale_x_discrete(name = "Month", labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
+  scale_x_discrete(name = "Month of year", labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
   theme(axis.title.y = element_blank(), axis.text.x = element_text(angle = 90))
 
 grid.arrange(p1, p2, p3, ncol = 3, top = "", bottom = " ") +
