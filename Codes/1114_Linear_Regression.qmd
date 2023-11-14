@@ -1,0 +1,7 @@
+---
+title: "Traffic_Crashes_Linear_Regression"
+author: "Divya Sharma (ds655)"
+format: pdf
+editor: visual
+jupyter: ir
+---
