@@ -1,0 +1,179 @@
+---
+title: "Modeling V1"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(geosphere)
+library(ggplot2)
+library(lubridate)
+library(DataExplorer)
+
+df <- readRDS('/Users/dhavalpotdar/Workarea/IDS702/Assignments/Group Project 1/Traffic Crahes/data/crashes_cleaned.rds')
+
+weather_df <- read.csv('~/Workarea/IDS702/Assignments/Group Project 1/Traffic Crahes/weather data/weather_data_consolidated.csv', stringsAsFactors = F) %>% 
+  group_by(datetime) %>% 
+  slice(1L) %>% 
+  ungroup()
+```
+
+# Data Augmentation
+
+------------------------------------------------------------------------
+
+## Distance to Dt
+
+```{r}
+
+chicago_dt_coordinates <- c(-87.6244212,41.8755616)
+
+df$dist_to_dt <- apply(df[,c("LONGITUDE","LATITUDE")],1,function(x) distm(
+  chicago_dt_coordinates,
+  x,fun=distHaversine))#*0.00062137
+
+df <- df %>% 
+  filter(!(LONGITUDE == 0 | LATITUDE == 0))
+```
+
+## Weather Data
+
+```{r}
+
+df$CRASH_DATE <- mdy_hms(df$CRASH_DATE,tz=Sys.timezone())
+weather_df$datetime <- mdy_hms(paste0(weather_df$datetime, "01:00:00 AM"))
+
+df <- df %>% 
+  mutate(crash_date = as.Date(format(CRASH_DATE, "%Y-%m-%d"))) %>% 
+  left_join(weather_df %>% 
+              mutate(date = as.Date(format(datetime, "%Y-%m-%d"))), 
+            by=c("crash_date" = "date")) %>% 
+  select(-crash_date) %>% 
+  rename_at(names(.), .funs = tolower)
+```
+
+# Final Cleaning
+
+------------------------------------------------------------------------
+
+```{r}
+
+df_final <- df %>% 
+  transmute(crash_date, 
+            hr_of_day = as.numeric(format(crash_date, '%H')),
+            day_of_week = factor(crash_day_of_week, 
+                                 levels=c(1, 2, 3, 4, 5, 6, 7),
+                                 labels=c("Sunday", 
+                                          "Monday", 
+                                          "Tuesday", 
+                                          "Wednesday", 
+                                          "Thursday", 
+                                          "Friday", 
+                                          "Saturday")),
+            month_of_year = factor(as.numeric(format(crash_date, '%m')),
+                                   levels=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                                   labels=c("Jan", 
+                                            "Feb", 
+                                            "Mar", 
+                                            "Apr", 
+                                            "May", 
+                                            "Jun", 
+                                            "Jul", 
+                                            "Aug", 
+                                            "Sep", 
+                                            "Oct", 
+                                            "Nov", 
+                                            "Dec")),
+            speed_limit = posted_speed_limit,
+            weather_condition = factor(weather_condition, ordered=F), 
+            trafficway_type = factor(trafficway_type, ordered = F),
+            roadway_surface_cond = factor(roadway_surface_cond, ordered = F),
+            num_units,
+            dist_to_dt, 
+            temp,
+            precipitation = precip, 
+            snow, 
+            snowdepth, 
+            windspeed, 
+            visibility,
+            damage_class, 
+            police_notified_time)
+
+str(df_final)
+```
+
+# EDA for Augmented Columns
+
+------------------------------------------------------------------------
+
+## Distance to Downtown
+
+```{r}
+df_final %>%
+  ggplot(aes(x=dist_to_dt)) +
+  geom_histogram(binwidth=0.1, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  ggtitle("Distribution of Distance to Downtown") +
+  xlab("Distance in Meters (logscale)") +
+  ylab("Count") +
+  # annotation_logticks() +
+  scale_x_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_continuous(name = "Number of Crashes", labels = scales::comma) +
+  theme(plot.title = element_text(size=15))
+```
+
+```{r}
+
+cat('Summary of Distance to Downtown:\n')
+summary(df_final$dist_to_dt)
+```
+
+## Visibility
+
+```{r}
+df_final %>%
+  ggplot(aes(x=visibility)) +
+  geom_histogram(binwidth=0.1, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  ggtitle("Distribution of Visibility") +
+  xlab("Distance in Meters (logscale)") +
+  ylab("Count") +
+  # annotation_logticks() +
+  scale_x_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_continuous(name = "Number of Crashes", labels = scales::comma) +
+  theme(plot.title = element_text(size=15))
+```
+
+## Precipitation
+
+```{r}
+
+df_final %>%
+  ggplot(aes(x=precipitation)) +
+  geom_histogram(binwidth=0.1, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  ggtitle("Distribution of Precipitation") +
+  xlab("Distance in Meters (logscale)") +
+  ylab("Count") +
+  # annotation_logticks() +
+  scale_x_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_continuous(name = "Number of Crashes", labels = scales::comma) +
+  theme(plot.title = element_text(size=15))
+```
+
+## Save data:
+
+```{r}
+
+plot_missing(df_final)
+```
+
+```{r}
+
+saveRDS(df_final, 
+        '~/Workarea/IDS702/Assignments/Group Project 1/NYPD Crime/output/df_cleaned_chicago_crashes.rds')
+```
