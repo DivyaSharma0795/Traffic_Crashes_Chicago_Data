@@ -5,3 +5,39 @@ format: pdf
 editor: visual
 jupyter: ir
 ---
+
+```{r}
+library(dplyr, quietly = T)
+```
+
+```{r}
+base_data <- readRDS(file='C:/Users/divya/OneDrive/Documents/Duke/MIDS/Semester 1/IDS 702 - Modeling and Representation of Data/Group_Project_Traffic_Crashes/Resources/df_cleaned_chicago_crashes.rds')
+head(base_data)
+```
+
+```{r}
+model <- lm(police_notified_time ~
+              #crash_date +
+              hr_of_day +
+              day_of_week +
+              month_of_year +
+              speed_limit +
+              #weather_condition +
+              trafficway_type +
+              roadway_surface_cond +
+              #num_units +
+              dist_to_dt +
+              temp +
+              precipitation +
+              snow +
+              snowdepth +
+              windspeed +
+              visibility 
+              #damage_class
+              , data = base_data)
+summary(model)
+```
+
+```{r}
+
+```
