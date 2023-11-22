@@ -11,7 +11,7 @@ library(dplyr, quietly = T)
 ```
 
 ```{r}
-base_data <- readRDS(file='C:/Users/divya/OneDrive/Documents/Duke/MIDS/Semester 1/IDS 702 - Modeling and Representation of Data/Group_Project_Traffic_Crashes/Resources/df_cleaned_chicago_crashes.rds')
+base_data <- readRDS(file='C:/Users/divya/OneDrive/Documents/Duke/MIDS/Semester 1/IDS 702 - Modeling and Representation of Data/Group_Project_Traffic_Crashes/Resources/df_cleaned_chicago_crashes_v2.rds')
 head(base_data)
 ```
 
@@ -22,22 +22,38 @@ model <- lm(police_notified_time ~
               day_of_week +
               month_of_year +
               speed_limit +
-              #weather_condition +
+              weather_condition +
               trafficway_type +
               roadway_surface_cond +
-              #num_units +
+              num_units +
               dist_to_dt +
-              temp +
+              #temp +
               precipitation +
               snow +
               snowdepth +
               windspeed +
-              visibility 
-              #damage_class
+              visibility +
+              damage_class
               , data = base_data)
 summary(model)
 ```
 
 ```{r}
+plot(model, which = 1)
+```
 
+```{r}
+plot(model, which = 2)
+```
+
+```{r}
+plot(model, which = 3)
+```
+
+```{r}
+plot(model, which = 4)
+```
+
+```{r}
+car::vif(model)
 ```
