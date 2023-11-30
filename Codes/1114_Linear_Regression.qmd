@@ -39,6 +39,31 @@ summary(model)
 ```
 
 ```{r}
+# Set up a 2x2 grid for the plots
+par(mfrow = c(2, 2))
+
+# Generate the four diagnostic plots
+plot(model)
+```
+
+```{r}
+# Set up a 2x2 grid for the plots
+par(mfrow = c(2, 2))
+
+# Generate the Residuals vs Fitted plot with a title
+plot(model, which = 1, main = "Residuals vs Fitted")
+
+# Generate the Normal Q-Q plot with a title
+plot(model, which = 2, main = "Normal Q-Q")
+
+# Generate the Scale-Location plot with a title
+plot(model, which = 3, main = "Scale-Location")
+
+# Generate the Residuals vs Leverage plot with a title
+plot(model, which = 4, main = "Residuals vs Leverage")
+```
+
+```{r}
 plot(model, which = 1)
 ```
 
