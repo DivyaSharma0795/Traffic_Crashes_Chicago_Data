@@ -23,7 +23,7 @@ library(ggplot2)
 library(ggrepel)
 library(hrbrthemes)
 library(gridExtra)
-path = "crashes_cleaned.rds"
+path = "C:/Users/divya/OneDrive/Documents/Duke/MIDS/Semester 1/IDS 702 - Statistics/crashes_cleaned.rds"
 #path = "crashes.csv"
 df_cleaned <- readRDS(path) %>% 
   filter(STREET_DIRECTION != "")

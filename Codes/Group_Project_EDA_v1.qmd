@@ -79,6 +79,7 @@ This data can be used to identify the probabilities of crashes happening, and th
 ## 2. EDA for Outcome Variables
 
 ### 2.1 Police Notification Time
+
 > -   The distribution is heavily right skewed with a majority of accidents being reported to the police in less than 25 minutes. Thus, the outcome is better visualized on a log scale.
 
 > -   The median notification time is 25 mins, the mean is 110 mins (1 hr, 50 mins) and the maximum is 1440 mins (1 day).
@@ -86,6 +87,7 @@ This data can be used to identify the probabilities of crashes happening, and th
 > -   Given the heavy skewing of the outcome variable, we will need to do appropriate transformations on the outcome variables in the modeling step.
 
 #### Fig 1: Distribution of Police Notified Time (Continuous Outcome)
+
 ```{r, echo=FALSE,fig.width = 4, fig.height = 3}
 df_cleaned %>%
   ggplot(aes(x=police_notified_time)) +
@@ -108,10 +110,11 @@ df_cleaned %>%
 ```
 
 ### 2.2 Expected Damage
--   The categorical variable has two outcomes - Major Damage (\>$1,500) and Minor Damage (\<$1,500)
 
--   62% of the damages come under the 'Major' category
-#### Fig 2: Distribution of Damage Type (Categorical Outcome)
+-   The categorical variable has two outcomes - Major Damage (\>\$1,500) and Minor Damage (\<\$1,500)
+
+-   62% of the damages come under the 'Major' category \#### Fig 2: Distribution of Damage Type (Categorical Outcome)
+
 ```{r, echo=FALSE,fig.width = 3, fig.height = 2}
 df_cleaned %>% 
   group_by(damage_class) %>% 
@@ -151,6 +154,7 @@ While the average time taken to notify police in case of a crash is 25 mins, we 
 ```
 
 #### Fig 3: Distribution of Time taken to notify across different times of the day
+
 ```{r, echo=FALSE,fig.width = 5, fig.height = 3, warning=FALSE}
 # ggplot(avg_time_to_notify, aes(y=avg_time_to_resp, x=crash_hour)) + 
 #     geom_bar(position="dodge", stat="identity") +
@@ -180,7 +184,9 @@ df_cleaned %>%
   ylab("Time taken to Notify (Minutes)")
 
 ```
+
 #### Fig 4: Distribution of Average Time taken to notify across different Damage Types
+
 ```{r, echo=FALSE,fig.width = 3, warning=FALSE}
 library(gt)
 
@@ -206,6 +212,7 @@ Major Damage (\>\$1500) is much more common than Minor Damage (\<%1500) in the C
 -   Intersection Related crashes have a much higher share of Major Damages than Minor Damages
 
 #### Fig 5: #Crashes across different Street Directions
+
 ```{r, echo=FALSE,fig.width = 5, fig.height = 2.5}
 ggplot(df_cleaned, aes(x = factor(STREET_DIRECTION), y = after_stat(count), fill = damage_class)) +
   geom_bar() +
@@ -222,7 +229,8 @@ ggplot(df_cleaned, aes(x = factor(STREET_DIRECTION), y = after_stat(count), fill
 
 Information like `crash_hour` (between 0 to 23 based on hour of the day), `crash_day_of_week` (between 0 to 7 depending on day of the week), and `crash_month` (1 - 12 depending on the month) can be used to ascertain the times when the highest amount of crashes occurred.
 
-#### Fig 6: Distribution of #Crashes across the year, week, or day  
+#### Fig 6: Distribution of #Crashes across the year, week, or day
+
 ```{r, echo=FALSE,fig.width = 7, fig.height = 3, warning=FALSE}
 p1 <- ggplot(df_cleaned, aes(x = cut(CRASH_HOUR, breaks = seq(0, 24, by = 4)), y = ..count..)) +
   geom_bar(fill="#69b3a2") +
